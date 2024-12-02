@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure File Upload</title>
+    <style>
+        body {
+            font-family: "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background-color: #000000; /* Black background for left side */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 1rem;
+            position: relative;
+        }
+
+        /* Left side of the split screen (black background) */
+        .left-side {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 46%;
+            background-color: #000000; /* Black background */
+            color: white; /* White text on the black background */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        /* SVG image styling */
+        .vector-icon {
+            width: 280px;  /* Adjust size as needed */
+            height: 220px;
+            margin-bottom:0.1rem;
+        }
+
+        /* Right side of the split screen (white box) */
+        .right-side {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 50%;
+            background: linear-gradient(135deg, #FF5733, #EDEADE, #BF40BF, #FF5F1F, #3F00FF, #ffffff); /* Gradient effect */
+            background-size: 300% 300%;  /* Larger background for animation effect */
+            animation: gradientAnimation 10s ease infinite;  /* Smooth infinite animation */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        @keyframes gradientAnimation {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .container {
+            background-color: #ffffff; /* White background */
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            color: #000000; /* Black text color */
+        }
+
+        h1 {
+            color: #021024; /* Dark heading */
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        h1::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background-color: #52A3E2;
+            margin: 0.5rem auto 1rem auto;
+            border-radius: 2px;
+        }
+
+        .formats {
+            color: #555555;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        input[type="file"] {
+            margin: 1rem 0;
+            width: 100%;
+            padding: 0.5rem;
+            border: 2px dashed #52A3E2;
+            border-radius: 8px;
+            background-color: rgba(0, 0, 0, 0.05);
+            color: #333333;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        button {
+            background-color: #52A3E2;
+            color: #ffffff;
+            font-weight: bold;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #message {
+            margin-top: 1.2rem;
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .alert {
+            color: #dc3545;
+            margin-top: 1.2rem;
+            font-weight: bold;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 25px;
+            margin: 1rem auto;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(135deg, #FF5733, #EDEADE, #BF40BF, #FF5F1F, #6082B6, #3F00FF); /* Gradient effect */
+            border-radius: 25px;
+            transition: width 0.5s ease-in-out;
+        }
+
+        /* Additional styles for the text on the left-side (black side) */
+        .left-side h2 {
+            font-size: 2rem;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="left-side">
+        <img src="static/images/05.png" alt="Security Icon" class="vector-icon">
+        <h2>Experience the Future of File Security</h2>
+    </div> <!-- Left black side -->
+    <div class="right-side">
+        <div class="container">
+            <h1>Secure File Upload</h1>
+            <div class="formats">Supported formats: PNG, JPG, JPEG, GIF, PDF, DOCX, TXT</div>
+            <form id="uploadForm" enctype="multipart/form-data">
+                <input type="file" id="file" name="file" required>
+                <button type="submit">Upload</button>
+            </form>
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <p id="message"></p>
+            <div id="alert" class="alert"></div>
+        </div>
+    </div> <!-- Right gradient side with the form -->
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const message = document.getElementById('message');
+        const alertBox = document.getElementById('alert');
+    
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+    
+            const fileInput = document.getElementById('file');
+            if (fileInput.files.length === 0) {
+                alertBox.textContent = 'Please select a file to upload.';
+                return;
+            }
+    
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+    
+            message.textContent = '';
+            alertBox.textContent = '';
+            progressBar.style.width = '0%';
+            progressContainer.style.display = 'block';
+    
+            let progress = 0;
+            const interval = setInterval(() => {
+                if (progress < 100) {
+                    progress += 1;
+                    progressBar.style.width = `${progress}%`;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 50);
+    
+            try {
+                const response = await fetch('/secure_upload', {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'same-origin'
+                });
+    
+                const result = await response.json();
+    
+                if (response.ok) {
+                    message.textContent = result.message || 'File uploaded successfully!';
+                    progressBar.style.width = '100%';
+                } else {
+                    throw new Error(result.error || 'Upload failed.');
+                }
+            } catch (error) {
+                alertBox.textContent = error.message || 'Error uploading file. Please try again.';
+                progressContainer.style.display = 'none';
+                clearInterval(interval);
+            }
+        });
+    </script>
+</body>
+</html>
