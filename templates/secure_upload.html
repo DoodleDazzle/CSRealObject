@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Secure File Upload</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            user-select: none;  /* Prevents text/image selection */
+        }
         body {
             font-family: "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
             background-color: #000000; /* Black background for left side */
@@ -15,6 +20,9 @@
             margin: 0;
             padding: 1rem;
             position: relative;
+            color: #000;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
         /* Left side of the split screen (black background) */
@@ -55,6 +63,7 @@
             justify-content: center;
             align-items: center;
         }
+
         @keyframes gradientAnimation {
             0% {
                 background-position: 0% 50%;
@@ -109,85 +118,132 @@
             background-color: rgba(0, 0, 0, 0.05);
             color: #333333;
             font-weight: bold;
-            text-align: center;
-            cursor: pointer;
+           text-align:center; 
+           cursor:pointer; 
         }
 
         button {
-            background-color: #52A3E2;
-            color: #ffffff;
-            font-weight: bold;
-            padding: 0.75rem;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
+           background-color:#52A3E2; 
+           color:#ffffff; 
+           font-weight:bold; 
+           padding:.75rem; 
+           border:none; 
+           border-radius:.8rem; 
+           font-size:.9rem; 
+           cursor:pointer; 
+           transition:.3s ease; 
+       }
 
-        button:hover {
-            background-color: #0056b3;
-        }
+       button:hover { 
+           background-color:#0056b3; 
+       }
 
-        #message {
-            margin-top: 1.2rem;
-            color: #28a745;
-            font-weight: bold;
-        }
+       #message { 
+           margin-top:.5rem; 
+           color:#28a745; 
+           font-weight:bold; 
+       }
 
-        .alert {
-            color: #dc3545;
-            margin-top: 1.2rem;
-            font-weight: bold;
-        }
+       .alert { 
+           color:#dc3545; 
+           margin-top:.5rem; 
+           font-weight:bold; 
+       }
 
-        .progress-container {
-            width: 100%;
-            height: 20px;
-            background-color: #e0e0e0;
-            border-radius: 25px;
-            margin: 1rem auto;
-            overflow: hidden;
-            display: none;
-        }
+       .progress-container { 
+           width :100%; 
+           height :20px; 
+           background-color:#e0e0e0; 
+           border-radius :25px; 
+           margin :1rem auto; 
+           overflow:hidden; 
+           display:none; 
+       }
 
-        .progress-bar {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(135deg, #FF5733, #EDEADE, #BF40BF, #FF5F1F, #6082B6, #3F00FF); /* Gradient effect */
-            border-radius: 25px;
-            transition: width 0.5s ease-in-out;
-        }
+       .progress-bar { 
+           width :0%; 
+           height :100%; 
+           background :linear-gradient(135deg,#FF5733,#EDEADE,#BF40BF,#FF5F1F,#6082B6,#3F00FF); /* Gradient effect */ 
+           border-radius :25px; 
+           transition :width .5s ease-in-out; 
+       }
 
-        /* Additional styles for the text on the left-side (black side) */
-        .left-side h2 {
-            font-size: 2rem;
-            color: white;
-            font-weight: bold;
-            text-align: center;
-        }
+       /* Additional styles for the text on the left-side (black side) */
+       .left-side h2 { 
+          font-size :2rem; 
+          color:white; 
+          font-weight:bold; 
+          text-align:center
+          margin-bottom: 1rem;
+       }
+       .left-side h3 {
+    margin-top: 1rem; /* Optional: Adjust this value for more spacing */
+}
+
+       .cursor {
+          display:block;  
+          width :30px;  
+          height :30px;  
+          position:absolute;  
+          top :50%;  
+          left :50%;  
+          transform :translate(-50%);  
+          border-radius :50%;  
+          background :transparent;  
+          pointer-events:none;  
+          z-index :111;  
+          border :1px solid #fff;  
+          transition :all .2s ease-out;  
+          animation :moveCursor1 .5s infinite alternate;  
+      }
+
+      .expand {  
+         background :transparent;  
+         animation :moveCursor2 .5s forwards;  
+         border :1px solid yellow;  
+      }
+
+      @keyframes moveCursor1 {  
+         from { transform :scale(1); }  
+
+         to { transform :scale(.8); }  
+      }  
+
+      @keyframes moveCursor2 {  
+         0% { transform :scale(1); }  
+
+         50% { transform :scale(2.5); }  
+
+         100% { transform :scale(1); opacity :0;}  
+      }
     </style>
 </head>
 <body>
     <div class="left-side">
         <img src="static/images/05.png" alt="Security Icon" class="vector-icon">
         <h2>Experience the Future of File Security</h2>
+        <h3>No Credits Require</h3>
     </div> <!-- Left black side -->
     <div class="right-side">
         <div class="container">
-            <h1>Secure File Upload</h1>
-            <div class="formats">Supported formats: PNG, JPG, JPEG, GIF, PDF, DOCX, TXT</div>
-            <form id="uploadForm" enctype="multipart/form-data">
-                <input type="file" id="file" name="file" required>
-                <button type="submit">Upload</button>
-            </form>
-            <div class="progress-container" id="progressContainer">
-                <div class="progress-bar" id="progressBar"></div>
-            </div>
-            <p id="message"></p>
-            <div id="alert" class="alert"></div>
-        </div>
-    </div> <!-- Right gradient side with the form -->
+             <h1>Secure File Upload</h1>
+             <div class="formats">Supported formats:
+                 PNG, ZIP, JPG, JPEG, GIF, PDF, DOCX
+             </div>
+             <form id="uploadForm" enctype="multipart/form-data">
+                 <input type="file" id="file" name="file" required>
+                 <button type="submit">Upload</button>
+             </form>
+             <div class="progress-container" id="progressContainer">
+                 <div class="progress-bar" id="progressBar"></div>
+             </div>
+             <p id="message"></p>
+             <div id="alert" class="alert"></div>
+         </div>
+     </div> <!-- Right gradient side with the form -->
+     
+     <!-- Custom Cursor -->
+     <div class="cursor"></div>
 
     <script>
         const form = document.getElementById('uploadForm');
@@ -195,55 +251,71 @@
         const progressBar = document.getElementById('progressBar');
         const message = document.getElementById('message');
         const alertBox = document.getElementById('alert');
-    
+
         form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-    
-            const fileInput = document.getElementById('file');
-            if (fileInput.files.length === 0) {
-                alertBox.textContent = 'Please select a file to upload.';
-                return;
-            }
-    
-            const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
-    
-            message.textContent = '';
-            alertBox.textContent = '';
-            progressBar.style.width = '0%';
-            progressContainer.style.display = 'block';
-    
-            let progress = 0;
-            const interval = setInterval(() => {
-                if (progress < 100) {
-                    progress += 1;
-                    progressBar.style.width = `${progress}%`;
-                } else {
-                    clearInterval(interval);
-                }
-            }, 50);
-    
-            try {
-                const response = await fetch('/secure_upload', {
-                    method: 'POST',
-                    body: formData,
-                    credentials: 'same-origin'
-                });
-    
-                const result = await response.json();
-    
-                if (response.ok) {
-                    message.textContent = result.message || 'File uploaded successfully!';
-                    progressBar.style.width = '100%';
-                } else {
-                    throw new Error(result.error || 'Upload failed.');
-                }
-            } catch (error) {
-                alertBox.textContent = error.message || 'Error uploading file. Please try again.';
-                progressContainer.style.display = 'none';
-                clearInterval(interval);
-            }
-        });
-    </script>
+             e.preventDefault();
+
+             const fileInput = document.getElementById('file');
+             if (fileInput.files.length === 0) {
+                 alertBox.textContent = 'Please select a file to upload.';
+                 return;
+             }
+
+             const formData = new FormData();
+             formData.append('file', fileInput.files[0]);
+
+             message.textContent = '';
+             alertBox.textContent = '';
+             progressBar.style.width = '0%';
+             progressContainer.style.display = 'block';
+
+             let progress = 0;
+
+             const interval = setInterval(() => {
+                 if (progress < 100) {
+                     progress += 1;
+
+                     progressBar.style.width = `${progress}%`;
+                 } else {
+                     clearInterval(interval);
+                 }
+             },50);
+
+             try {
+                 const response = await fetch('/secure_upload', {
+                     method:'POST',
+                     body :formData,
+                     credentials :'same-origin'
+                 });
+
+                 const result = await response.json();
+
+                 if (response.ok) {
+                     message.textContent = result.message || 'File uploaded successfully!';
+                     progressBar.style.width ='100%';
+                 } else {
+                     throw new Error(result.error || 'Upload failed.');
+                 }
+             } catch (error) {
+                 alertBox.textContent = error.message || 'Error uploading file. Please try again.';
+                 progressContainer.style.display ='none';
+                 clearInterval(interval);
+             }
+         });
+
+         // Custom Cursor Logic
+         const cursor = document.querySelector('.cursor');
+
+         document.addEventListener('mousemove', e => {
+              cursor.setAttribute("style", "top:" + (e.pageY -10) + "px;" + "left:" + (e.pageX -10) + "px;");
+         });
+
+         document.addEventListener('click', e => {
+              cursor.classList.add("expand");
+              setTimeout(() => {
+                  cursor.classList.remove("expand");
+              },500);
+         });
+     </script>
 </body>
 </html>
